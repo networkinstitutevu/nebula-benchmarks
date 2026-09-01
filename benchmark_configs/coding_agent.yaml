@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://github.com/ai-dynamo/aiperf/blob/main/src/aiperf/config/schema/aiperf-config.schema.json
+schemaVersion: "2.0"
+random_seed: 42
+
+benchmark:
+  model: ${MODEL_NAME}
+  endpoint:
+    url: ${URL:-http://localhost:8000/}
+    type: chat
+    streaming: true
+  dataset:
+    type: synthetic
+    entries: 1000
+    prompts:
+      isl: {mean: 10000, stddev: 2000}
+      osl: {mean: 1000}
+  phases:
+    - name: warmup
+      type: concurrency
+      requests: 20
+      exclude_from_results: true
+    - name: profiling
+      type: concurrency
+      concurrency: 100
+      requests: 1000
+  artifacts:
+    dir: ./artifacts/coding_agent
+    summary: [json]
+
+sweep:
+  type: grid
+  parameters:
+    concurrency: [10, 25, 50, 75, 100, 150, 200]
