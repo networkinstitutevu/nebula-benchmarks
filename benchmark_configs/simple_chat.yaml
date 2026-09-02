@@ -24,7 +24,7 @@ benchmark:
       concurrency: 100
       requests: 1000
   artifacts:
-    dir: ./artifacts/simple_chat
+    dir: ./artifacts/${MODEL_NAME}/simple_chat
     summary: [json]
 
 sweep:
