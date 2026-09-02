@@ -13,7 +13,7 @@ AIPERF="aiperf"
 run() {
   local config="$1"
   echo ">> ${config}.yaml  (MODEL_NAME=${MODEL_NAME}, URL=${URL})"
-  "$AIPERF" profile --config "benchmark_configs/${config}.yaml"
+  "$AIPERF" profile --ui simple --gpu-telemetry pynvml --config "benchmark_configs/${config}.yaml"
 }
 
 # All configs, in order. Override with arguments, e.g. ./run.sh minimal simple_chat
