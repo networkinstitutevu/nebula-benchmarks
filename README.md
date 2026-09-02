@@ -125,6 +125,53 @@ Analyze a profiling run:
 aiperf analyze
 ```
 
+### Interactive dashboard
+
+The `visualize/` package is an interactive [Dash](https://plotly.com/dash/) +
+[Plotly](https://plotly.com/python/) web app that plots the sweep-aggregate data
+written to `artifacts/{modelSupplier}/{modelName}/{benchmarkType}/sweep_aggregate/`.
+It compares a chosen metric against `concurrency`, one line per benchmark type
+(or per model × benchmark type), with an explanation panel and a numbers table.
+
+```bash
+# from the repo root, with the virtualenv active
+source .venv/bin/activate
+python3 visualize/app.py            # serves the dashboard at http://127.0.0.1:8050
+```
+
+Command-line options:
+
+| Option        | Purpose                                   | Default             |
+| ------------- | ----------------------------------------- | ------------------- |
+| `--artifacts` | Directory containing the artifacts        | `artifacts`         |
+| `--port`      | Port to serve the dashboard on            | `8050`              |
+| `--host`      | Host to bind to                           | `127.0.0.1`         |
+
+The dashboard provides:
+
+- **Variable selector** — a searchable list of every metric found in the data
+  (grouped and labelled with its unit). Selecting one shows an explanation panel
+  with the metric's label, unit, category, a higher-is-better hint, and a
+  plain-English description.
+- **Layout modes** — one line per benchmark type, one line per model ×
+  benchmark type, or a two-metric overlay (e.g. throughput vs latency on dual
+  axes).
+- **Filters** — multi-select for models and benchmark types, a min–max
+  uncertainty band toggle, and a log y-axis toggle.
+- A **numbers table** of the selected metric by benchmark, model, and
+  concurrency.
+
+The data source is discovered automatically from the `artifacts/` directory tree,
+so adding a new model (or supplier) folder makes it appear in the filters and
+plots without changing any code.
+
+The visualizer needs `dash`, `dash-bootstrap-components`, and `plotly`
+(already available in this repo's `.venv`). Install them if needed:
+
+```bash
+pip install dash dash-bootstrap-components plotly
+```
+
 ## Results
 
 Profiling output (summaries, traces, metrics) is written to the artifact directory

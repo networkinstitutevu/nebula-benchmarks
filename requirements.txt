@@ -1,3 +1,2 @@
 aiperf
-pynvml
 nvidia-ml-py
