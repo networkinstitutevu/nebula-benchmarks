@@ -1,0 +1,17 @@
+# Source: https://recipes.vllm.ai/Qwen/Qwen3.8-27B?hardware=b200&advanced=gpu_mem_095%2Cmax_batched_8k%2Cmax_num_seqs_256%2Cmax_model_len_auto&variant=nvfp4
+# note: requires vllm version qwen38 
+host: "0.0.0.0"
+port: "8000"
+model: "Inferact/Qwen3.8-27B-NVFP4"
+root-path: "/vllm"
+tensor-parallel-size: 1
+max-model-len: 65536
+gpu-memory-utilization: 0.90
+kv-cache-dtype: "fp8"
+max-num-batched-tokens: 8192
+max-num-seqs: 256
+enable-auto-tool-choice: true
+tool-call-parser: "qwen3_coder"
+reasoning-parser: "qwen3"
+mm-encoder-tp-mode: "data"
+async-scheduling: true
