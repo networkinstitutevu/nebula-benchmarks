@@ -1,0 +1,30 @@
+services:
+  qwen38-nvfp4:
+    image: vllm/vllm-openai:qwen38
+    container_name: qwen38-nvfp4
+    ipc: host
+    volumes:
+      # Cache models locally so they aren't redownloaded on container restart
+      - ./model-cache/huggingface:/root/.cache/huggingface
+      - ./vllm/qwen38-nvfp4-v3.yaml:/config.yaml
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    ports:
+      - 8000:8000
+    command: >
+      --config /config.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8000/vllm/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 1200s
+    restart: unless-stopped
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: ["gpu"]
