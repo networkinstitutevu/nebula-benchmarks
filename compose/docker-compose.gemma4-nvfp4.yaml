@@ -1,0 +1,107 @@
+services:
+  gemma4-nvfp4:
+    image: vllm/vllm-openai:v0.23.0
+    container_name: gemma4-nvfp4
+    ipc: host
+    volumes:
+      # Cache models locally so they aren't redownloaded on container restart
+      - ./model-cache/huggingface:/root/.cache/huggingface
+      # Mount your local 'examples' directory so the container can access the Jinja template
+      - ./examples:/app/examples
+      - ./vllm/gemma4-nvfp4.yaml:/config.yaml
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    ports:
+      - 8000:8000
+    command: >
+      --config /config.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8000/vllm/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 1200s
+    restart: unless-stopped
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: ["gpu"]
+    # labels:
+    #   - "traefik.http.routers.gemma.rule=Host(`${BASE_DOMAIN}`) && PathPrefix(`/vllm`)"
+    #   - "traefik.http.services.gemma.loadbalancer.server.port=8000"
+    #
+    #   # IP Allowlist Middleware
+    #   - "traefik.http.middlewares.ip-allowlist.ipallowlist.sourceRange=127.0.0.1/32,145.108.224.22,145.108.224.12"
+    #   - "traefik.http.routers.gemma.middlewares=ip-allowlist"
+    #
+
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:latest
+    container_name: dcgm-exporter
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: always
+    environment:
+      - DCGM_EXPORTER_NO_HOSTNAME=0
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - "9400:9400"
+
+  # vllm-gemma4:
+  #   image: vllm/vllm-openai:v0.23.0
+  #   container_name: vllm-gemma4
+  #   ipc: host
+  #   volumes:
+  #     # Cache models locally so they aren't redownloaded on container restart
+  #     - ./model-cache/huggingface:/root/.cache/huggingface
+  #     # Mount your local 'examples' directory so the container can access the Jinja template
+  #     - ./examples:/app/examples
+  #   environment:
+  #     - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+  #   command: 
+  #     - "google/gemma-4-31B-it"
+  #     - "--root-path=/vllm"
+  #     - "--tensor-parallel-size=1"
+  #     - "--max-model-len=-1" 
+  #     - "--gpu-memory-utilization=0.90"
+  #     - "--enable-auto-tool-choice"
+  #     - "--reasoning-parser=gemma4"
+  #     - "--tool-call-parser=gemma4"
+  #     - "--chat-template=examples/tool_chat_template_gemma4.jinja"
+  #     - "--limit-mm-per-prompt.image=4" 
+  #     - "--limit-mm-per-prompt.audio=1"
+  #     - "--async-scheduling"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8000/vllm/health || exit 1"]
+  #     interval: 15s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 1200s
+  #   restart: unless-stopped
+  #   runtime: nvidia
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: ["gpu"]
+  #   labels:
+  #     - "traefik.http.routers.gemma.rule=Host(`${BASE_DOMAIN}`) && PathPrefix(`/vllm`)"
+  #     - "traefik.http.services.gemma.loadbalancer.server.port=8000"
+  #
+  #     # IP Allowlist Middleware
+  #     - "traefik.http.middlewares.ip-allowlist.ipallowlist.sourceRange=127.0.0.1/32,145.108.224.22,145.108.224.12"
+  #     - "traefik.http.routers.gemma.middlewares=ip-allowlist"
+  #
+

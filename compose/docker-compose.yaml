@@ -1,0 +1,26 @@
+include:
+  # - ./docker-compose.gemma4.yaml
+  # - ./docker-compose.gemma4-nvfp4.yaml
+  - ./docker-compose.qwen38-nvfp4.yaml
+
+services:
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:latest
+    container_name: dcgm-exporter
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: always
+    volumes:
+      - ./custom_gpu_metrics.csv:/etc/dcgm-exporter/custom.csv
+    environment:
+      - DCGM_EXPORTER_INTERVAL=33
+    command: ["-f", "/etc/dcgm-exporter/custom.csv"]
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - "9400:9400"
