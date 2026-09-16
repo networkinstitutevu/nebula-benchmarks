@@ -10,7 +10,7 @@ services:
       - ./examples:/app/examples
       - ./vllm/gemma4.yaml:/config.yaml
     ports:
-      - 8000:8000
+      - 127.0.0.1:8000:8000
     environment:
       - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
     command: >

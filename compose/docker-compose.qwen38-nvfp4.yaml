@@ -6,11 +6,11 @@ services:
     volumes:
       # Cache models locally so they aren't redownloaded on container restart
       - ./model-cache/huggingface:/root/.cache/huggingface
-      - ./vllm/qwen38-nvfp4-v1.yaml:/config.yaml
+      - ./vllm/qwen38-nvfp4-v5.yaml:/config.yaml
     environment:
       - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
     ports:
-      - 8000:8000
+      - 127.0.0.1:8000:8000
     command: >
       --config /config.yaml
     healthcheck:

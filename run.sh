@@ -4,8 +4,8 @@ set -euo pipefail
 # Set these once; they are reused for every benchmark.
 # You can also export them before calling this script to override.
 export MODEL_NAME="${MODEL_NAME:-mymodel}"
-export URL="${URL:-http://localhost:8000/}"
-export VERSION="${VERSION:-}"
+export URL="${URL:-http://localhost:8000/vllm/}"
+export VERSION="${VERSION:--v0}"
 
 # Use the repo's virtualenv if it exists.
 AIPERF="aiperf"
