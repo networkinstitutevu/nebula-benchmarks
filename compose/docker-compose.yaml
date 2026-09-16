@@ -1,7 +1,8 @@
 include:
   # - ./docker-compose.gemma4.yaml
   # - ./docker-compose.gemma4-nvfp4.yaml
-  - ./docker-compose.qwen38-nvfp4.yaml
+  # - ./docker-compose.qwen38-nvfp4.yaml
+  - ./docker-compose.gpt-oss.yaml
 
 services:
   dcgm-exporter:
