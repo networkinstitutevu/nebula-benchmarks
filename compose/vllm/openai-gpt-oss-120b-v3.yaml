@@ -1,0 +1,15 @@
+host: "0.0.0.0" # Binds to all network interfaces. https://docs.vllm.ai/en/latest/serving/engine_args.html
+port: "8000" # Standard port for the vLLM API server. https://docs.vllm.ai/en/latest/serving/engine_args.html
+model: "openai/gpt-oss-120b" # The model identifier to load. https://docs.vllm.ai/en/latest/serving/engine_args.html
+root-path: "/vllm" # API root path for the server endpoints. https://docs.vllm.ai/en/latest/serving/engine_args.html
+tensor-parallel-size: 1 # Number of GPUs for tensor parallelism. 1 means no TP. https://docs.vllm.ai/en/latest/serving/engine_args.html
+gpu-memory-utilization: 0.95 # Max fraction of GPU memory to use. 0.95 is aggressive, leaving minimal room for PyTorch overhead, maximizing KV cache space. https://docs.vllm.ai/en/latest/serving/engine_args.html
+max-model-len: 131072 # Explicitly set to support the 128K context window. https://docs.vllm.ai/en/latest/serving/engine_args.html
+kv-cache-dtype: "fp8" # Uses FP8 for KV cache to halve its memory footprint compared to FP16. https://docs.vllm.ai/en/latest/serving/engine_args.html
+max-num-seqs: 16 # Halved from 32. Because context is doubled (128K), halving active sequences ensures KV cache memory stays identical to the 64K stable config. https://docs.vllm.ai/en/latest/serving/engine_args.html
+max-num-batched-tokens: 32768 # Defines the maximum prefill chunk size per forward pass. Vital for long contexts. https://docs.vllm.ai/en/latest/serving/engine_args.html
+enable-chunked-prefill: true # Essential for large contexts. It chunks long prompts to bound activation memory spikes during prefill, preventing instant OOMs. https://docs.vllm.ai/en/latest/models/performance.html
+max-cudagraph-capture-size: 16 # Matched to max-num-seqs. Prevents vLLM from pre-allocating VRAM for unreachable large batch sizes (32, 64, 128), recovering memory for the KV cache. https://docs.vllm.ai/en/latest/serving/engine_args.html
+tool-call-parser: "openai" # Enables OpenAI-compatible tool calling format. https://docs.vllm.ai/en/latest/serving/engine_args.html
+enable-auto-tool-choice: true # Allows the model to automatically decide whether to call a tool or reply directly. https://docs.vllm.ai/en/latest/serving/engine_args.html
+stream-interval: 2 # Streams back output every 2 tokens, balancing network overhead and perceived latency. https://docs.vllm.ai/en/latest/serving/engine_args.html
