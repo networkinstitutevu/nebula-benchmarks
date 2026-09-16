@@ -1,0 +1,15 @@
+host: "0.0.0.0"
+port: "8000"
+model: "openai/gpt-oss-120b"
+root-path: "/vllm"
+tensor-parallel-size: 1
+gpu-memory-utilization: 0.95
+max-model-len: 65536
+kv-cache-dtype: "fp8"
+max-num-seqs: 32
+max-num-batched-tokens: 32768
+enable-chunked-prefill: true
+max-cudagraph-capture-size: 256
+tool-call-parser: "openai"
+enable-auto-tool-choice: true
+stream-interval: 2

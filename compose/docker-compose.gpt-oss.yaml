@@ -1,0 +1,31 @@
+services:
+  gpt-oss:
+    image: vllm/vllm-openai:v0.23.0
+    container_name: gpt-oss
+    ipc: host
+    volumes:
+      # Cache models locally so they aren't redownloaded on container restart
+      - ./model-cache/huggingface:/root/.cache/huggingface
+      # Mount your local 'examples' directory so the container can access the Jinja template
+      - ./vllm/openai-gpt-oss-120b.yaml:/config.yaml
+    ports:
+      - 8000:8000
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    command: >
+      --config /config.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8000/vllm/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 1200s
+    restart: unless-stopped
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: ["gpu"]
