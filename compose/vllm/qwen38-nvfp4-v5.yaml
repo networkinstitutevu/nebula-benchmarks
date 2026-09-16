@@ -2,16 +2,16 @@
 # note: requires vllm version qwen38 
 host: "0.0.0.0"
 port: "8000"
-model: "nvidia/Qwen3.8-27B-NVFP4"
+model: "Inferact/Qwen3.8-27B-NVFP4"
 root-path: "/vllm"
 tensor-parallel-size: 1
-max-model-len: 65536
+max-model-len: 131072
 gpu-memory-utilization: 0.95
 kv-cache-dtype: "fp8"
 enable-prefix-caching: true
 enable-chunked-prefill: true
 max-num-batched-tokens: 16384
-max-num-seqs: 256
+max-num-seqs: 128
 enable-auto-tool-choice: true
 tool-call-parser: "qwen3_xml"
 reasoning-parser: "qwen3"
