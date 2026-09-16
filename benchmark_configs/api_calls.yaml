@@ -24,7 +24,7 @@ benchmark:
       concurrency: 100
       requests: 1000
   artifacts:
-    dir: ./artifacts/${MODEL_NAME}/api_calls
+    dir: ./artifacts/${MODEL_NAME}${VERSION}/api_calls
     summary: [json]
 
 sweep:

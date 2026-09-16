@@ -5,6 +5,7 @@ set -euo pipefail
 # You can also export them before calling this script to override.
 export MODEL_NAME="${MODEL_NAME:-mymodel}"
 export URL="${URL:-http://localhost:8000/}"
+export VERSION="${VERSION:-}"
 
 # Use the repo's virtualenv if it exists.
 AIPERF="aiperf"
@@ -12,7 +13,7 @@ AIPERF="aiperf"
 
 run() {
   local config="$1"
-  echo ">> ${config}.yaml  (MODEL_NAME=${MODEL_NAME}, URL=${URL})"
+  echo ">> ${config}.yaml  (MODEL_NAME=${MODEL_NAME}, URL=${URL}, VERSION=${VERSION})"
   "$AIPERF" profile --ui simple --gpu-telemetry pynvml --config "benchmark_configs/${config}.yaml"
 }
 

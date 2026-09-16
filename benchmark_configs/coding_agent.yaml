@@ -24,7 +24,7 @@ benchmark:
       concurrency: 100
       requests: 1000
   artifacts:
-    dir: ./artifacts/${MODEL_NAME}/coding_agent
+    dir: ./artifacts/${MODEL_NAME}${VERSION}/coding_agent
     summary: [json]
 
 sweep:
