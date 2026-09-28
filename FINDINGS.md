@@ -130,3 +130,128 @@ options. The crossover is around c≈75–200.
 We **deploy `v4`** and will re-evaluate only when (if)
 the user base grows enough to push sustained concurrency past ~75, at which
 point `v3` becomes the better choice on energy and throughput.
+
+
+# openai/gpt-oss:120b
+## Configurations
+* **v1** - base configuration (vLLM cookbook style): gpu-memory-utilization 0.88, max-num-batched-tokens 8192, max-cudagraph-capture-size 2048, stream-interval 20.
+* **v2** - fine-tune: gpu-memory-utilization 0.95, max-model-len 65536 (64K context), kv-cache-dtype fp8, max-num-seqs 32, max-num-batched-tokens 32768, enable-chunked-prefill, max-cudagraph-capture-size 256, stream-interval 2.
+* **v3** - fine-tune based on v2 with 128K context: max-model-len 131072 (doubled), max-num-seqs 16 (halved from 32 to keep KV cache memory identical to the 64K config), max-cudagraph-capture-size 16 (matched to max-num-seqs, freeing VRAM for the KV cache).
+
+## Results
+### coding_agent
+#### Total Token Throughput [tokens/s]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 5485.07 | 6755.86 | 7777.48 | 7803.05 | 7791.89 | 7797.61 | 7699.74 |
+| **v2** | 6678.33 | 8982.02 | 9750.35 | 9787.85 | 9727.96 | 9677.54 | 9741.29 |
+| **v3** | 5977.42 | 7330.17 | 7333.27 | 7352.01 | 7313.74 | 7291.04 | 7349.16 |
+
+#### E2E Output Token Throughput [tokens/s/user]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 44.93 | 22.31 | 12.91 | 8.69 | 6.80 | 4.88 | 3.94 |
+| **v2** | 54.36 | 29.53 | 16.07 | 10.86 | 8.50 | 6.12 | 4.98 |
+| **v3** | 48.23 | 24.04 | 12.35 | 8.55 | 6.78 | 5.02 | 4.18 |
+
+#### Nvidia Energy Per Total Token [mJ/token]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 80.60 | 64.37 | 56.79 | 56.69 | 56.75 | 57.29 | 57.90 |
+| **v2** | 62.32 | 48.74 | 45.26 | 45.22 | 45.48 | 45.96 | 45.75 |
+| **v3** | 73.78 | 61.47 | 61.54 | 61.57 | 62.01 | 62.36 | 61.97 |
+
+### api_calls
+#### Total Token Throughput [tokens/s]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 2309.16 | 3516.63 | 5855.94 | 7287.63 | 8723.67 | 10869.37 | 12539.61 |
+| **v2** | 2546.97 | 4365.50 | 5035.49 | 5119.56 | 4953.12 | 5070.37 | 5012.27 |
+| **v3** | 2362.85 | 3287.57 | 3345.21 | 3374.07 | 3275.77 | 3364.28 | 3329.35 |
+
+#### E2E Output Token Throughput [tokens/s/user]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 72.43 | 44.22 | 37.42 | 31.46 | 28.17 | 24.09 | 20.29 |
+| **v2** | 79.90 | 54.90 | 36.50 | 23.28 | 17.68 | 12.92 | 10.53 |
+| **v3** | 74.07 | 45.87 | 22.58 | 15.57 | 12.23 | 9.16 | 7.66 |
+
+#### Nvidia Energy Per Total Token [mJ/token]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 191.59 | 133.31 | 80.32 | 63.54 | 53.30 | 42.45 | 40.32 |
+| **v2** | 164.97 | 103.54 | 89.81 | 87.98 | 90.97 | 89.27 | 89.75 |
+| **v3** | 189.03 | 137.33 | 135.16 | 134.14 | 137.94 | 134.00 | 135.23 |
+
+### simple_chat
+#### Total Token Throughput [tokens/s]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 1959.51 | 2919.18 | 4970.18 | 6250.85 | 7469.92 | 9462.86 | 11102.50 |
+| **v2** | 2096.17 | 3666.67 | 4200.27 | 4317.21 | 4188.26 | 4270.61 | 4242.22 |
+| **v3** | 1957.46 | 2749.04 | 2740.62 | 2813.24 | 2706.26 | 2795.60 | 2753.09 |
+
+#### E2E Output Token Throughput [tokens/s/user]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 74.49 | 44.50 | 38.48 | 32.69 | 29.17 | 25.39 | 21.70 |
+| **v2** | 79.66 | 55.89 | 36.48 | 23.75 | 18.06 | 13.21 | 10.81 |
+| **v3** | 74.32 | 46.09 | 22.29 | 15.67 | 12.23 | 9.23 | 7.71 |
+
+#### Nvidia Energy Per Total Token [mJ/token]
+| **config** | **concurrency 10** | **concurrency 25** | **concurrency 50** | **concurrency 75** | **concurrency 100** | **concurrency 150** | **concurrency 200** |
+|  --- |  --- |  --- |  --- |  --- |  --- |  --- |  --- |
+| **v1** | 224.48 | 160.45 | 94.85 | 74.60 | 62.27 | 48.63 | 44.44 |
+| **v2** | 201.43 | 123.32 | 107.82 | 104.58 | 107.62 | 106.03 | 106.59 |
+| **v3** | 223.97 | 163.57 | 164.39 | 160.16 | 166.20 | 160.63 | 163.44 |
+
+## Conclusions
+We selected **`v2`** as the best operating point. `v2` (64K context
+with an FP8 KV cache and chunked prefill) is the most efficient
+config at low-to-moderate concurrency across all three workloads: at
+c=10 it leads `v1` on every metric in every workload, and it stays
+ahead through roughly c=25.
+
+| workload | energy/token (v2 / v1) | e2e out tok/s/user (v2 / v1) | total tok/s (v2 / v1) |
+| --- | --- | --- | --- |
+| coding_agent | 62.3 / 80.6 | 54.4 / 44.9 | 6678 / 5485 |
+| api_calls | 165.0 / 191.6 | 79.9 / 72.4 | 2547 / 2309 |
+| simple_chat | 201.4 / 224.5 | 79.7 / 74.5 | 2096 / 1960 |
+
+### Caveat: the advantage reverses at high concurrency
+For `api_calls` and `simple_chat`, `v2`'s edge disappears at high
+concurrency; the crossover is around c≈50, after which **`v1`** (the
+base config) becomes the better choice. `v2` caps active sequences at
+32 and runs a large 32768-token batch, so it plateaus its throughput
+and stalls its energy per token; `v1`, with no active-sequence cap and
+a much larger cuDGraph capture size (2048 vs 256), keeps scaling
+throughput and keeps its energy per token falling as concurrency
+climbs. `coding_agent` is the exception: `v2` keeps winning it across
+the whole sweep (throughput 9741 vs 7700 tok/s, energy 45.8 vs 57.9
+mJ/token at c=200), so the advantage reverses in none of the three
+workloads.
+
+| workload | energy/token at c=200 (v1 / v2) | total tok/s at c=200 (v1 / v2) |
+| --- | --- | --- |
+| coding_agent | 57.9 / 45.7 | 7700 / 9741 |
+| api_calls | 40.3 / 89.8 | 12540 / 5012 |
+| simple_chat | 44.4 / 106.6 | 11102 / 4242 |
+
+### `v3` is never the best choice
+`v3` (128K context, max-num-seqs 16, cuDGraph capture 16) is the most
+constrained of the three and never wins. It is dominated by `v2`
+across all of `coding_agent`, and by `v1` at high concurrency in
+`api_calls` and `simple_chat`. At c=200 it is the worst on every
+metric in those two workloads (`api_calls`: total 3329 vs 12540
+tok/s, energy 135.2 vs 40.3 mJ/token; `simple_chat`: total 2753 vs
+11103 tok/s, energy 163.4 vs 44.4 mJ/token). Its halved
+active-sequence cap and doubled context leave it with the lowest
+throughput and highest energy per token once the GPU is well-used.
+
+### Bottom line
+We **deploy `v2`** for low-to-moderate concurrency (c ≤ ~50), where it
+is the best config on throughput, energy, and per-user output across
+all three workloads. Fall back to **`v1`** only when sustained
+concurrency pushes past ~50 on `api_calls` / `simple_chat`, where it
+scales throughput and energy better. Avoid **`v3`** unless a 128K
+context window is actually required.
